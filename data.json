@@ -1,5 +1,6 @@
 [
     {
+        "request_type": "regular",
         "id": 1,
         "applicant": "Иванов И.И.",
         "workshop": 1,
@@ -10,10 +11,10 @@
         "minutes": 60,
         "status": "Выполнена",
         "live_zayvki": 1,
-        "urgent": false,
         "executor": "Главный Сисадмин"
     },
     {
+        "request_type": "urgent",
         "id": 2,
         "applicant": "Петров П.П.",
         "workshop": 2,
@@ -22,12 +23,13 @@
         "priority": "A",
         "hours": 4.5,
         "minutes": 270,
-        "status": "Выполнена",
+        "status": "В работе",
         "live_zayvki": 2,
-        "urgent": true,
-        "executor": "Главный Сисадмин"
+        "executor": "Главный Сисадмин",
+        "response_hours": 1.4
     },
     {
+        "request_type": "scheduled",
         "id": 3,
         "applicant": "Сидоров С.С.",
         "workshop": 3,
@@ -36,12 +38,13 @@
         "priority": "B",
         "hours": 2.0,
         "minutes": 120,
-        "status": "Выполнена",
+        "status": "В работе",
         "live_zayvki": 1,
-        "urgent": false,
-        "executor": "Главный Сисадмин"
+        "executor": "Главный Сисадмин",
+        "planned_date": "2026-11-12"
     },
     {
+        "request_type": "regular",
         "id": 4,
         "applicant": "Козлов К.К.",
         "workshop": 4,
@@ -50,12 +53,27 @@
         "priority": "C",
         "hours": 0.5,
         "minutes": 30,
-        "status": "Выполнена",
+        "status": "В работе",
         "live_zayvki": 3,
-        "urgent": false,
         "executor": "Сетевой инженер"
     },
     {
+        "request_type": "urgent",
+        "id": 5,
+        "applicant": "Новиков Н.Н.",
+        "workshop": 1,
+        "category": "Сломалась учётная запись",
+        "description": "Заблокирована после 3 неудачных попыток",
+        "priority": "FBI",
+        "hours": 0.2,
+        "minutes": 12,
+        "status": "Новая",
+        "live_zayvki": 1,
+        "executor": "Не назначен",
+        "response_hours": 0.5
+    },
+    {
+        "request_type": "regular",
         "id": 6,
         "applicant": "Морозов М.М.",
         "workshop": 2,
@@ -66,10 +84,10 @@
         "minutes": 180,
         "status": "Выполнена",
         "live_zayvki": 2,
-        "urgent": false,
         "executor": "Главный Сисадмин"
     },
     {
+        "request_type": "scheduled",
         "id": 7,
         "applicant": "Волков В.В.",
         "workshop": 5,
@@ -78,9 +96,23 @@
         "priority": "B",
         "hours": 5.5,
         "minutes": 330,
-        "status": "Выполнена",
+        "status": "В работе",
         "live_zayvki": 1,
-        "urgent": false,
-        "executor": "Главный Сисадмин"
+        "executor": "Главный Сисадмин",
+        "planned_date": "2026-11-30"
+    },
+    {
+        "request_type": "regular",
+        "id": 8,
+        "applicant": "Алексеев А.А.",
+        "workshop": 3,
+        "category": "Не подключается рабочий VPN",
+        "description": "Клиент VPN не запускается после обновления Windows",
+        "priority": "C",
+        "hours": 1.5,
+        "minutes": 90,
+        "status": "Новая",
+        "live_zayvki": 1,
+        "executor": "Не назначен"
     }
 ]

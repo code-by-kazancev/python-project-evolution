@@ -1,4 +1,5 @@
-import time
+import time, os
+from typing import Any
 from DownloadAndSaveFileData import load_data, save_data, save_users
 from Operations import ( 
     add_requests, view_all_requests, 
@@ -6,24 +7,29 @@ from Operations import (
     statistika_requests, delete_id_requests, 
     change_status_to_work, change_status_to_done, 
     show_sorted_by_category, show_sorted_by_hours, 
-    compare_sorting 
+    compare_sorting, edit_request
 )
 from HelpOperations import view_id_requests, filter_search_requests, set_categories
 from AlgoritmamTutNeMesto import linear_search
-from models import Request, User 
+from models import Request, UrgentRequest, ScheduledRequest, User 
 
 # --- КОНСТАНТЫ ---
-
-PRODUCT_NAME = "IT-СЕРВИС"
-VERSION = "2.1"
-urgent = False
 author = "code-by-kazancev"
+PRODUCT_NAME = "IT-СЕРВИС"
+VERSION = "2.2"
+urgent = False
 
 categories = [
     "Не работает сетевой принтер", "Пропал доступ к базе 1С", 
     "Завис сервер учёта продукции", "Не подключается рабочий VPN", "Сломалась учётная запись"
 ]
 priorities = ["A", "B", "C", "D", "FBI"]
+
+# --- ПЕРЕРИСОВКА --- #
+def clear_screen():
+    # \033[2J — очищает весь экран
+    # \033[H — перемещает курсор в левый верхний угол
+    print("\033[2J\033[H", end="")
 
 # --- ФУНКЦИЯ ДЛЯ КРАСИВОГО МЕНЮ ---
 def draw_menu(title, items, width=50):
@@ -39,27 +45,42 @@ def draw_menu(title, items, width=50):
 requests = load_data("data.json", Request)
 users = load_data("user.json", User)
 
-# Если заявок нет, создаем тестовые #
+# Если заявок нет, создаем тестовые (по одной каждого типа) #
 if not requests:
+    base_kwargs:dict[str, Any] = {
+        "applicant": "Тестовый Пользователь",
+        "workshop": 1,
+        "hours": 2.0,
+        "minutes": 120,
+        "status": "Новая",
+        "live_zayvki": 1,
+        "executor": "Не назначен"
+    }
+
     requests = [
-        Request(id=1, applicant="Иванов И.И.", workshop=1, category="Не работает сетевой принтер", 
-                description="Принтер не печатает", priority="B", hours=1.0, minutes=60, 
-                status="Новая", live_zayvki=1, urgent=False, executor="Не назначен"),
-        Request(id=2, applicant="Петров П.П.", workshop=2, category="Пропал доступ к базе 1С", 
-                description="Нет связи с сервером", priority="A", hours=2.0, minutes=120, 
-                status="Новая", live_zayvki=2, urgent=True, executor="Не назначен"),
-        Request(id=3, applicant="Сидоров С.С.", workshop=3, category="Сломалась учётная запись", 
-                description="Не могу войти в систему", priority="C", hours=0.5, minutes=30, 
-                status="Новая", live_zayvki=3, urgent=False, executor="Не назначен")
+        Request(
+            id=1, category="Не работает сетевой принтер", 
+            description="Обычная тестовая заявка", priority="D", **base_kwargs
+        ),
+        UrgentRequest(
+            id=2, category="Пропал доступ к базе 1С", 
+            description="Срочная тестовая заявка", priority="A", response_hours=1.0, **base_kwargs
+        ),
+        ScheduledRequest(
+            id=3, category="Завис сервер учёта продукции", 
+            description="Запланированная тестовая заявка", priority="B", planned_date="2026-12-31", **base_kwargs
+        )
     ]
     save_data(requests)
 
-# Проверяем синхронизацию категорий и приоритетов
-validate_priority_map(categories)
 
 print(f"================== {PRODUCT_NAME} {VERSION} ==================")
-print(f"| Система управления IT-заявками предприятия |")
-print(f"| Автор: {author} |")
+print(f"| {'Система управления IT-заявками предприятия':^47} |")
+print(f"| {f'Автор: {author}':^47} |")
+# Проверяем синхронизацию категорий и приоритетов
+validate_priority_map(categories)
+print("===================================================")
+
 
 # ========================================================= #
 # ГЛАВНЫЙ БЕСКОНЕЧНЫЙ ЦИКЛ ПРОГРАММЫ                   #
@@ -97,9 +118,11 @@ while True:
 
             if found_user is None:
                 print("| ❌ Пользователь не найден. Попробуйте снова или зарегистрируйтесь.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
                 continue 
 
-            print(f"| Найдена учетная запись: {found_user.name} (Роль: {found_user.role})")
+            print(f"\n| Найдена учетная запись: {found_user.name} (Роль: {found_user.role})\n")
 
             if found_user.role == "it_specialist":
                 password = input("| Введите пароль сисадмина >> ").strip()
@@ -110,6 +133,7 @@ while True:
             else: print("| Вход без пароля (сотрудник).")
 
             current_user = found_user
+            clear_screen()
             print(f"| ✅ Добро пожаловать, {current_user.name}!")
 
         elif auth_choice == "2":
@@ -175,6 +199,7 @@ while True:
                 "10. Сортировка по категории",
                 "11. Сортировка по времени",
                 "12. Сравнение алгоритмов",
+                "13. Редактировать заявку",
                 "0. Выйти из аккаунта"
             ]
             draw_menu("МЕНЮ IT-СПЕЦИАЛИСТА", admin_menu)
@@ -188,16 +213,22 @@ while True:
                 now_id = max((r.id for r in requests), default=0) + 1
                 colvo_zayvok = len(requests)
                 add_requests(now_id, colvo_zayvok, 1, requests, categories, current_user)
+                # add_requests имеет внутренний цикл, пауза не нужна
+                clear_screen()
 
             elif user_input == "2":
                 my_requests = [r for r in requests if r.applicant == current_user.name]
                 if my_requests: view_all_requests(my_requests)
                 else: print("| У вас пока нет заявок.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
 
             elif user_input == "3":
                 my_requests = [r for r in requests if r.applicant == current_user.name]
                 if my_requests: view_id_requests(my_requests)
                 else: print("| У вас пока нет заявок.")
+                # view_id_requests имеет внутренний цикл, пауза не нужна
+                clear_screen()
 
             elif user_input == "4":
                 my_requests = [r for r in requests if r.applicant == current_user.name]
@@ -207,56 +238,88 @@ while True:
                     print(f"| Найдено: {len(found)}")
                     if found: view_all_requests(found)
                 else: print("| У вас пока нет заявок.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
 
             elif user_input == "0":
                 print(f"| {current_user.name}, вы вышли из системы.")
                 save_data(requests)
                 break # Возврат к авторизации
 
-            else: print("| Неверный пункт меню.")
+            else: 
+                print("| Неверный пункт меню.")
+                input("\n| Нажмите Enter...")
+                clear_screen()
 
         # --- ЛОГИКА СИСАДМИНА ---
         elif current_user.role == "it_specialist":
             if user_input == "1": 
                 view_all_requests(requests) if requests else print("| Заявок нет.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
 
             elif user_input == "2": 
                 change_status_to_work(requests, current_user.name) if requests else print("| Нечего брать.")
+                clear_screen()
 
             elif user_input == "3": 
                 change_status_to_done(requests) if requests else print("| Нечего закрывать.")
+                clear_screen()
 
             elif user_input == "4": 
                 delete_id_requests(len(requests), requests) if requests else print("| Нечего удалять.")
+                clear_screen()
 
             elif user_input == "5": 
                 statistika_requests(requests) if requests else print("| Статистики нет.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
 
             elif user_input == "6": 
                 filter_search_requests(requests, urgent) if requests else print("| Нечего фильтровать.")
+                clear_screen()
 
             elif user_input == "7": 
                 set_categories(requests) if requests else print("| Категорий нет.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
 
             elif user_input == "8": 
                 save_data(requests)
                 print("| Данные сохранены.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
 
             elif user_input == "9": 
                 view_archive_requests(requests) if requests else print("| Архив пуст.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
 
             elif user_input == "10":
                 show_sorted_by_category(requests) if requests else print("| Нечего сортировать.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
 
             elif user_input == "11":
                 show_sorted_by_hours(requests) if requests else print("| Нечего сортировать.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
 
             elif user_input == "12":
                 compare_sorting(requests) if requests else print("| Нечего сравнивать.")
+                input("\n| Нажмите Enter для возврата в меню...")
+                clear_screen()
+
+            elif user_input == "13":
+                edit_request(requests) if requests else print("| Нечего редактировать.")
+                clear_screen()
 
             elif user_input == "0":
                 print(f"| {current_user.name}, вы вышли из системы.")
                 save_data(requests)
                 break
 
-            else: print("| Неверный пункт меню.")
+            else: 
+                print("| Неверный пункт меню.")
+                input("\n| Нажмите Enter...")
+                clear_screen()

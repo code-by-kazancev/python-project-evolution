@@ -1,12 +1,19 @@
 import json, os
+from models import Request, User, request_from_dict
 
 DATA_FILE = "data.json"
 USERS_FILE = "users.json"
 
-def save_data(data_list):
-    # Сохраняет список объектов (Request или User) в JSON
-    # Утиная типизация: если объект умеет to_dict, превращаем его
-    data_to_save = [item.to_dict() if hasattr(item, "to_dict") else item for item in data_list]
+
+def save_data(requests):
+    # Сохраняет список заявок в JSON-файл.
+    # Утиная типизация: если объект умеет to_dict, превращаем его.
+    data_to_save = []
+    for item in requests:
+        if hasattr(item, "to_dict"):
+            data_to_save.append(item.to_dict())
+        else:
+            data_to_save.append(item)
 
     try:
         with open(DATA_FILE, "w", encoding="utf-8") as file:
@@ -15,9 +22,16 @@ def save_data(data_list):
     except Exception as e:
         print(f"| Ошибка при сохранении данных: {e}")
 
-def save_users(users_list):
-    # Сохраняет список пользователей в JSON
-    data_to_save = [item.to_dict() if hasattr(item, "to_dict") else item for item in users_list]
+
+def save_users(users):
+    # Сохраняет список пользователей в JSON.
+    data_to_save = []
+    for item in users:
+         
+        if hasattr(item, "to_dict"):
+            data_to_save.append(item.to_dict())
+        else:
+            data_to_save.append(item)
 
     try:
         with open(USERS_FILE, "w", encoding="utf-8") as file:
@@ -26,17 +40,25 @@ def save_users(users_list):
     except Exception as e:
         print(f"| Ошибка при сохранении пользователей: {e}")
 
+
 def load_data(filename, object_class=None):
-    # Если передан object_class (например, Request или User), превращает словари в объекты.
+    # Загружает данные из JSON.
+    # Если передан object_class, превращает словари в объекты.
+    # Для иерархии Request автоматически использует фабрику request_from_dict.
     if os.path.exists(filename):
-        
         try:
             with open(filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
 
             if object_class and isinstance(data, list):
-                # Превращаем каждый словарь в объект нужного класса
-                return [object_class.from_dict(item) for item in data]
+                # Проверяем, является ли класс частью иерархии Request
+                if hasattr(object_class, "request_type"):
+                    # Используем фабричную функцию для восстановления правильного типа
+                    return [request_from_dict(item) for item in data]
+                else:
+                    # Для User и других классов используем их from_dict
+                    return [object_class.from_dict(item) for item in data]
+
             return data
         
         except json.JSONDecodeError:
@@ -46,5 +68,5 @@ def load_data(filename, object_class=None):
         except Exception as e:
             print(f"| Ошибка чтения файла {filename}: {e}. Будет создан новый список.")
             return []
-            
-    else: return []
+    else:
+        return []
