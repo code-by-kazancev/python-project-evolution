@@ -1,1 +1,86 @@
-[]
+[
+    {
+        "id": 1,
+        "applicant": "Иванов И.И.",
+        "workshop": 1,
+        "category": "Не работает сетевой принтер",
+        "description": "Замятие бумаги, мигает красный индикатор",
+        "priority": "D",
+        "hours": 1.0,
+        "minutes": 60,
+        "status": "Выполнена",
+        "live_zayvki": 1,
+        "urgent": false,
+        "executor": "Главный Сисадмин"
+    },
+    {
+        "id": 2,
+        "applicant": "Петров П.П.",
+        "workshop": 2,
+        "category": "Пропал доступ к базе 1С",
+        "description": "Ошибка подключения к серверу баз данных",
+        "priority": "A",
+        "hours": 4.5,
+        "minutes": 270,
+        "status": "Выполнена",
+        "live_zayvki": 2,
+        "urgent": true,
+        "executor": "Главный Сисадмин"
+    },
+    {
+        "id": 3,
+        "applicant": "Сидоров С.С.",
+        "workshop": 3,
+        "category": "Завис сервер учёта продукции",
+        "description": "Сервер не отвечает на ping, все отключены",
+        "priority": "B",
+        "hours": 2.0,
+        "minutes": 120,
+        "status": "Выполнена",
+        "live_zayvki": 1,
+        "urgent": false,
+        "executor": "Главный Сисадмин"
+    },
+    {
+        "id": 4,
+        "applicant": "Козлов К.К.",
+        "workshop": 4,
+        "category": "Не подключается рабочий VPN",
+        "description": "Выдаёт ошибку авторизации 403",
+        "priority": "C",
+        "hours": 0.5,
+        "minutes": 30,
+        "status": "Выполнена",
+        "live_zayvki": 3,
+        "urgent": false,
+        "executor": "Сетевой инженер"
+    },
+    {
+        "id": 6,
+        "applicant": "Морозов М.М.",
+        "workshop": 2,
+        "category": "Не работает сетевой принтер",
+        "description": "Не видит сетевой принтер HP LaserJet",
+        "priority": "D",
+        "hours": 3.0,
+        "minutes": 180,
+        "status": "Выполнена",
+        "live_zayvki": 2,
+        "urgent": false,
+        "executor": "Главный Сисадмин"
+    },
+    {
+        "id": 7,
+        "applicant": "Волков В.В.",
+        "workshop": 5,
+        "category": "Завис сервер учёта продукции",
+        "description": "Тормозит работа, высокая нагрузка на CPU",
+        "priority": "B",
+        "hours": 5.5,
+        "minutes": 330,
+        "status": "Выполнена",
+        "live_zayvki": 1,
+        "urgent": false,
+        "executor": "Главный Сисадмин"
+    }
+]

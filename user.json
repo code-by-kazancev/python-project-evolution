@@ -1,0 +1,6 @@
+[
+    {"login": "admin", "name": "Главный Сисадмин", "role": "it_specialist", "workshop": 0, "password": "admin123"},
+    {"login": "ivanov", "name": "Иванов И.И.", "role": "employee", "workshop": 1},
+    {"login": "petrov", "name": "Петров П.П.", "role": "employee", "workshop": 2},
+    {"login": "sidorov", "name": "Сидоров С.С.", "role": "employee", "workshop": 3}
+]
